@@ -9,11 +9,29 @@ body {
 .card h2{
   font-family: 'Roboto', sans-serif;
   color: #4d194d;
+
+}
+
+.comment{
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+.filter{
+  display: none;
+}
+
+.show {
+    display: block;
+}
+/* Add a dark background to the active button */
+.btn.active {
+  background-color: #666;
+  color: white;
 }
 
 .blog{
-  margin-left: 15%;
-  margin-right: 15%;
+  max-width: 1200px;
+  margin: auto;
   padding-top: 30px;
 
 }
@@ -33,19 +51,27 @@ body {
   font-family: 'Roboto', sans-serif;
 }
 
+
 /* Create two unequal columns that floats next to each other */
 /* Left column */
 .leftcolumn {
   float: left;
-  width: 70%;
+  width: 22%;
+}
+
+.midcolumn{
+  float: left;
+  width: 60%;
+  padding-left: 20px;
 }
 
 /* Right column */
 .rightcolumn {
   float: left;
-  width: 30%;
+  width: 18%;
   padding-left: 20px;
 }
+
 
 /* Fake image */
 .fakeimg {
@@ -53,6 +79,7 @@ body {
   width: 100%;
   padding: 20px;
 }
+
 
 /* Add a card effect for articles */
 .card {
@@ -67,7 +94,17 @@ body {
   background-color: rgba(250, 250, 250, 0.2);
   border-radius: 12px;
   border: 0px;
-  box-shadow: 2px 6px 6px 2px rgba(0,0,0,0.15);
+  box-shadow: 0px 3px 3px 1px rgba(0,0,0,0.15);
+}
+
+
+
+#myBtn{
+  width: 95%;
+  margin: auto;
+}
+.bgroup{
+  margin-top: 14px;
 }
 
 /* Clear floats after the columns */
