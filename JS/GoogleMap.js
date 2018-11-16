@@ -1,10 +1,58 @@
 
 var map, infoWindow;
 
+var minLong = 32.87025;
+var maxLong = 32.89156;
+var minLat = -117.24412;
+var maxLat = -117.22909;
+var start = 600;
+var end = 644;
+
+var textPlaceholder = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus imperdiet, nulla et dictum interdum, nisi lorem egestas vitae scel...";
+
+function getRandomInRange(from, to, fixed) {
+    return (Math.random() * (to - from) + from).toFixed(fixed) * 1;
+}
+
+function getRandomEmoji(start, end){
+  return  (Math.random() * (start - end) + end).toFixed();
+}
+
+// return sample: [emoji, long, lat, img, title, text, num]
+function getRandomEmojiList(num){
+  var emojis = [];
+  for(var i = 1; i <= num + 1; i++){
+    var single = [];
+    // emoji
+    var emoji = getRandomEmoji(start, end);
+    single.push("&#x1F" + emoji);
+    // long and lat
+    var long = getRandomInRange(minLong, maxLong, 6);
+    single.push(long);
+    var lat = getRandomInRange(minLat, maxLat, 6);
+    single.push(lat);
+    // emoji img
+    single.push('1f' + emoji + '.png');
+    // title
+    single.push('TITILE');
+    // content
+    single.push(textPlaceholder);
+    // num
+    single.push(i);
+    emojis.push(single);
+  }
+  return emojis;
+}
+
+
+
 function initMap() {
+
+  var emojis = getRandomEmojiList(100);
   var map = new google.maps.Map(document.getElementById('map'), {
-    center: {lat: 32.88, lng: -117.23},
-    zoom: 13,
+
+    center: {lat: 32.88, lng: -117.236},
+    zoom: 15.4,
 
     mapTypeControl: true,
     mapTypeControlOptions: { position: google.maps.ControlPosition.LEFT_BOTTOM },
@@ -187,6 +235,33 @@ function initMap() {
     });
     map.fitBounds(bounds);
   });
+
+  // Set emoji on to location
+  var info = new google.maps.InfoWindow();
+  var iconpath = "../Asset/emoji/";
+
+  var marker, i;
+
+    for (i = 0; i < emojis.length; i++) {
+      marker = new google.maps.Marker({
+        position: new google.maps.LatLng(emojis[i][1], emojis[i][2]),
+        map: map,
+        icon: iconpath + emojis[i][3]
+      });
+
+      google.maps.event.addListener(marker, 'click', (function(marker, i) {
+        return function() {
+          info.setContent('<h3 style="font-size: 21px;">' + emojis[i][0]+'  '+ emojis[i][4] + '</h3>' +
+                    '<h4 style="font-size: 14px;"> by John Doe </h4>' +
+                    '<h4 style="color: grey; font-size: 12px;">' + getRandomEmoji(2,80) +' mins ago </h4>' +
+                    '<p style="font-size: 15px;">' + emojis[i][5] + '</p>' +
+                  //'<button class="btn btn-outline-secondary" onclick="openFeeds()"><i class="fas fa-rss-square"></i> View in Feed </button>' +
+                '<button class = "btn btn-success" style="margin-left: 20px;" onclick="openChat()"> <i class="fas fa-comments"></i> Chat </button>');
+          info.setOptions({maxWidth: 320});
+          info.open(map, marker);
+        }
+      })(marker, i));
+    }
 }
 
 
@@ -218,7 +293,7 @@ function CenterControl(controlDiv, map) {
         var emojiList = document.createElement('select');
         var newOption;
         var emojRange = [
-          [128513, 128591] ,[9986,10160],[128640,128704]
+          [600, 644]
         ];
         for (var i = 0; i < emojRange.length; i++) {
           var range = emojRange[i];
@@ -226,7 +301,7 @@ function CenterControl(controlDiv, map) {
 
             newOption = document.createElement('option');
             newOption.value = x;
-            newOption.innerHTML = "&#" + x + ";";
+            newOption.innerHTML = "&#x1F" + x + ";";
             emojiList.appendChild(newOption);
           }
         }
@@ -242,12 +317,12 @@ function CenterControl(controlDiv, map) {
         label.appendChild(emojiList);
 
         // default emoji value
-        var emoji = '&#' + emojiList.children[0].value;
+        var emoji =  emojiList.children[0].value;
 
         // Change emoji value if the select has changed
         $(emojiList).on('change', function(){
           var num = $(this).val();
-          emoji = '&#' +  num;
+          emoji =  num;
 
         });
 
@@ -261,6 +336,9 @@ function postEmoji(map, emoji){
 
   infoWindow = new google.maps.InfoWindow;
 
+  var marker;
+
+
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function(position) {
       var pos = {
@@ -268,10 +346,26 @@ function postEmoji(map, emoji){
         lng: position.coords.longitude
       };
 
-      infoWindow.setPosition(pos);
-      infoWindow.setContent(emoji);
+      var iconpath = "../Asset/emoji/";
 
-      infoWindow.open(map);
+      marker = new google.maps.Marker({
+        position: pos,
+        map: map,
+        icon: iconpath + '1f' + emoji + '.png'
+      });
+
+      marker.setAnimation(google.maps.Animation.BOUNCE);
+
+      google.maps.event.addListener(marker, 'click', (function(marker) {
+        return function() {
+          infoWindow.setContent("&#x1F" + emoji);
+          infoWindow.open(map, marker);
+        }
+      })(marker));
+
+      marker.addListener("dblclick", function() {
+        marker.setMap(null);
+      });
 
       map.setZoom(15);
 
@@ -285,6 +379,9 @@ function postEmoji(map, emoji){
     handleLocationError(false, infoWindow, map.getCenter());
   }
 }
+
+
+
 function handleLocationError(browserHasGeolocation, infoWindow, pos) {
         infoWindow.setPosition(pos);
         infoWindow.setContent(browserHasGeolocation ?
