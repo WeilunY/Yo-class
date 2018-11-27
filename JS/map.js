@@ -9,8 +9,37 @@ function closeFeeds() {
 }
 
 /* Open when someone clicks on the span element */
-function openChat() {
+function openChat(name) {
     document.getElementById("chat").style.width = "70%";
+
+    totalChat += 1;
+    currentChat = totalChat;
+
+    // create a chatlist var
+    $(".inbox_chat").prepend('<div class="chat_list" id="chat_name'+ totalChat +'">\
+    <div class="chat_people" onclick="switchChat('+ totalChat +')">\
+    <div class="chat_img"> <img src="img_avatar.png" alt="sunil"> </div>\
+    <div class="chat_ib">\
+    <h5>'+ name +'<span class="chat_date">Now</span></h5>\
+    <p>Now you can start chatting with '+ name +'</p>\
+    </div></div></div>'
+    );
+
+    // chat history
+    $(".mesgs").prepend('<div class="msg_history"  id="chat_history'+ totalChat +'">\
+    <div class="incoming_msg">\
+    <div class="incoming_msg_img"> <img src="img_avatar.png" alt="sunil"> </div>\
+    <div class="received_msg">\
+    <div class="received_withd_msg">\
+    <p>Now you can start chatting with '+name+'</p>\
+    <span class="time_date"> Now   |   Today</span></div>\
+    </div></div></div>');
+
+    switchChat(totalChat);
+}
+
+function openChat1(){
+  document.getElementById("chat").style.width = "70%";
 }
 
 /* Close when someone clicks on the "x" symbol inside the overlay */
@@ -42,6 +71,83 @@ function closePost2() {
   document.getElementById("eventPost").style.height = "0%";
 }
 
+function openSignin(){
+  closePost();
+  closePost1();
+  closePost2();
+  closeFeeds();
+  closeChat();
+  document.getElementById("signin").style.height = "100%";
+}
+
+var email = "";
+var password = "";
+
+function closeSignin() {
+  var error = "";
+  if(!$("#inputEmail").val()){
+    error = error + "Please fill in your email \n";
+  }
+
+  if(!$("#inputPassword").val()){
+    error = error + "Please fill in your password \n";
+  }
+
+  if(error != ""){
+    alert(error);
+  }
+
+  else{
+    document.getElementById("signin").style.height = "0%";
+    $("#inputEmail").val("");
+    $("#inputPassword").val("");
+  }
+}
+
+function openSignup(){
+  document.getElementById("signup").style.height = "100%";
+}
+
+function closeSignup(){
+  var error = "";
+
+  if(!$("#inputfname").val()){
+    error = error + "Please fill in your first name \n";
+  }
+
+  if(!$("#inputlname").val()){
+    error = error + "Please fill in your last name \n";
+  }
+
+  document.getElementById("signup").style.height = "0%";
+}
+
+// post comment
+function postComment(num){
+  var id = "#c" + num;
+  var commentID = "#comment" + num;
+  if (!$(id).val()){
+    alert("No Comment")
+  } else {
+    var text = $(id).val();
+    if(confirm("Are you ready to post " + text + "?")){
+      $(commentID).prepend('<div class="a_comment">\
+      <div class="person">\
+      <img src="../Asset/Images/profile_pics/head_wisteria.png"\
+      style="height:45px; width:45px ;border-radius: 100px;">\
+      </div>\
+      <div class="comment_content">\
+        <p id="comment_name"> You </p>\
+        <p id="comment_stuff">' + text + '</p>\
+        </div>\
+        <div style="clear:both;"></div>\
+      </div>'
+      )
+
+      $(id).val("");
+  }
+  }
+}
 
 // Post msg to people around you
 $('#postNear').keypress(function(event) {
@@ -81,12 +187,6 @@ $('#general-post').click(function(){
     <h6> by You </h6>\
     <h7 style='color: grey; margin-bottom: 12px;'>now</h7>\
     <p>" + content.val() + "</p>\
-    <div align='right' class='bgroup'>\
-    <button class='btn btn-outline-success'> <i class='fa fa-thumbs-up'></i> Like </button>\
-    <button class='btn btn-outline-primary' onclick='typeComment( " + numPost + " )'> <i class='fa fa-comment'></i> Comment </button>\
-    <div id='type" + numPost  + "' style='display: none;'>\
-    <textarea class='form-control comment' id='content' rows='4' placeholder='Add your comment...''></textarea>\
-    </div>\
     </div> </div> </div>");
 
     numPost += 1;
@@ -117,12 +217,6 @@ $('#academic-post').click(function(){
     <h7 style='color: grey; margin-bottom: 12px;'>now</h7>\
     <h4> Subject: " + subject.val() + "</h4>\
     <p>" + content.val() + "</p>\
-    <div align='right' class='bgroup'>\
-    <button class='btn btn-outline-success'> <i class='fa fa-thumbs-up'></i> Like </button>\
-    <button class='btn btn-outline-primary' onclick='typeComment( " + numPost + " )'> <i class='fa fa-comment'></i> Comment </button>\
-    <div id='type" + numPost  + "' style='display: none;'>\
-    <textarea class='form-control comment' id='content' rows='4' placeholder='Add your comment...''></textarea>\
-    </div>\
     </div> </div> </div>");
 
     numPost += 1;
@@ -156,12 +250,6 @@ $('#event-post').click(function(){
     <h4> Location @  "+ location.val() + "</h4>\
     <h5> Date: "+ time.val() + "</h5>\
     <p>" + description.val() + "</p>\
-    <div align='right' class='bgroup'>\
-    <button class='btn btn-outline-success'> <i class='fa fa-thumbs-up'></i> Like </button>\
-    <button class='btn btn-outline-primary' onclick='typeComment( " + numPost + " )'> <i class='fa fa-comment'></i> Comment </button>\
-    <div id='type" + numPost  + "' style='display: none;'>\
-    <textarea class='form-control comment' id='content' rows='4' placeholder='Add your comment...''></textarea>\
-    </div>\
     </div> </div> </div>");
 
     numPost += 1;
@@ -172,5 +260,50 @@ $('#event-post').click(function(){
     location.val("");
     time.val("");
     content.val("");
+  }
+});
+
+var totalChat = 2;
+var currentChat = 1;
+
+// Switch chat
+function switchChat(n){
+  currentChat = n;
+  // set current active
+  $("#chat_name" + n).addClass("active_chat");
+
+  // Remove active
+  for(i = 1; i <= totalChat; i++){
+    if(i != n && $("#chat_name" + i).hasClass("active_chat")){
+      $("#chat_name" + i).removeClass("active_chat");
+    }
+  }
+
+  $("#chat_history" + n).css("display","block");
+
+  for(i = 1; i <= totalChat; i++){
+    if (i != n){
+      $("#chat_history" + i).css("display","none");
+    }
+  }
+
+}
+
+// Send chat
+$(".write_msg").keypress(function(event) {
+  if (event.keyCode == 13 || event.which == 13) {
+    if(!$(".write_msg").val()){
+      alert("Please type your message");
+    } else {
+      var msg = $(".write_msg").val();
+      $("#chat_history" + currentChat).append(
+        '<div class="outgoing_msg">\
+          <div class="sent_msg">\
+          <p>' + msg + '</p>\
+            <span class="time_date"> Now    |    Today</span> </div>\
+            </div> </div>  '
+      );
+      $(".write_msg").val("");
+    }
   }
 });

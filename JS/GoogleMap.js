@@ -18,7 +18,11 @@ function getRandomEmoji(start, end){
   return  (Math.random() * (start - end) + end).toFixed();
 }
 
-// return sample: [emoji, long, lat, img, title, text, num]
+// Random names
+var names = ["John Doe", "Kamren Atkinson", "Jaylin Martin", "Justus Townsend", "Lilly Bryant", "Annie Obrien", "Austin Costa",
+"Kelvin Arias", "Cierra Fisher", "Ariel Moreno", "Dereon Fritz", "Ross Richards", "Noe Romero"];
+
+// return sample: [emoji, long, lat, img, title, name, num]
 function getRandomEmojiList(num){
   var emojis = [];
   for(var i = 1; i <= num + 1; i++){
@@ -34,9 +38,9 @@ function getRandomEmojiList(num){
     // emoji img
     single.push('1f' + emoji + '.png');
     // title
-    single.push('TITILE');
-    // content
-    single.push(textPlaceholder);
+    single.push('TITILE Lorem ipsum dolor sit amet, consectetur adipiscing elit....');
+    // name
+    single.push(names[getRandomEmoji(0, names.length - 1)]);
     // num
     single.push(i);
     emojis.push(single);
@@ -62,8 +66,7 @@ function initMap() {
 
     scaleControl: true,
 
-    streetViewControl: true,
-    streetViewControlOptions: { position: google.maps.ControlPosition.LEFT_CENTER },
+    streetViewControl: false,
 
     fullscreenControl: true,
     fullscreenControlOptions:{ position: google.maps.ControlPosition.LEFT_CENTER},
@@ -252,11 +255,9 @@ function initMap() {
       google.maps.event.addListener(marker, 'click', (function(marker, i) {
         return function() {
           info.setContent('<h3 style="font-size: 21px;">' + emojis[i][0]+'  '+ emojis[i][4] + '</h3>' +
-                    '<h4 style="font-size: 14px;"> by John Doe </h4>' +
+                    '<h4 style="font-size: 14px;"> by '+ emojis[i][5] + ' </h4>' +
                     '<h4 style="color: grey; font-size: 12px;">' + getRandomEmoji(2,80) +' mins ago </h4>' +
-                    '<p style="font-size: 15px;">' + emojis[i][5] + '</p>' +
-                  //'<button class="btn btn-outline-secondary" onclick="openFeeds()"><i class="fas fa-rss-square"></i> View in Feed </button>' +
-                '<button class = "btn btn-success" style="margin-left: 20px;" onclick="openChat()"> <i class="fas fa-comments"></i> Chat </button>');
+                '<button class = "btn btn-success" onclick="openChat('+ '\'' + emojis[i][5] + '\''+')"> <i class="fas fa-comments"></i> Chat </button>');
           info.setOptions({maxWidth: 320});
           info.open(map, marker);
         }
@@ -323,16 +324,26 @@ function CenterControl(controlDiv, map) {
         $(emojiList).on('change', function(){
           var num = $(this).val();
           emoji =  num;
+          var title = prompt("What would you like to share?");
+
+          if(title != null){
+            postEmoji(map, emoji, title);
+          }
 
         });
 
         // Setup the click event listeners: post emoji
         controlUI.addEventListener('click', function() {
-          postEmoji(map, emoji);
+          var title = prompt("What would you like to share?");
+
+          if(title != null){
+            postEmoji(map, emoji, title);
+          }
+          postEmoji(map, emoji, title);
         });
       }
 
-function postEmoji(map, emoji){
+function postEmoji(map, emoji, title){
 
   infoWindow = new google.maps.InfoWindow;
 
@@ -358,13 +369,19 @@ function postEmoji(map, emoji){
 
       google.maps.event.addListener(marker, 'click', (function(marker) {
         return function() {
-          infoWindow.setContent("&#x1F" + emoji);
+          infoWindow.setContent('<h3 style="font-size: 21px;">' + "&#x1F" + emoji + ' ' +  title + '</h3>'+
+          '<h4 style="font-size: 14px;"> by You </h4>' +
+          '<h4 style="color: grey; font-size: 12px;"> Just Now </h4>'
+        );
           infoWindow.open(map, marker);
         }
       })(marker));
 
       marker.addListener("dblclick", function() {
-        marker.setMap(null);
+        if(confirm("Are you sure that you want to delete your post?")){
+          marker.setMap(null);
+        }
+
       });
 
       map.setZoom(15);
